@@ -1,0 +1,29 @@
+# 排除前端代码
+cooking-admin-web/
+cooking-miniprogram/
+cooking-uniapp/
+
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Other
+.claude/

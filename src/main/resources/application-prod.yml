@@ -1,0 +1,67 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: cooking-app
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      location: ${java.io.tmpdir}
+      resolve-lazily: false
+
+  # 生产环境数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://81.68.149.80:13306/cooking_db?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: ZPSSfFiCypxErLdH
+
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    # 生产环境关闭SQL日志
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.cooking.entity
+
+# 微信小程序配置
+wechat:
+  appid: wx4bb4e5cf5c71bdb3  # 替换为你的小程序AppID
+  secret: 09afea87488b51e1c58ed118328f4594  # 替换为你的小程序AppSecret
+
+# JWT配置 - 生产环境请修改密钥
+jwt:
+  secret: cooking-app-secret-key-2024
+  expire-time: 604800000  # 过期时间（毫秒），默认7天
+
+# MinIO配置
+minio:
+  endpoint: http://file.xuaq.top:19000 # 注意是9000端口（数据端口），不是控制台的9001
+  accessKey: IDjlfoXFOCpf5tbTIjBm  # 你部署时设置的MINIO_ROOT_USER
+  secretKey: cWDIEDnyOShCYzU8PgNT4UsmZB2BYg98wgTVe688   # 你部署时设置的MINIO_ROOT_PASSWORD
+  bucketName: cook-pro  # 自定义桶名（会自动创建，无需手动在控制台创建）
+
+# 日志配置 - 生产环境
+logging:
+  level:
+    com.cooking: info
+    org.springframework: warn
+    org.apache.ibatis: warn
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/cooking-app.log
+    max-size: 10MB
+    max-history: 30

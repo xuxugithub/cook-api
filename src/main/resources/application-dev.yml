@@ -1,0 +1,73 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: cooking-app
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      # 设置临时文件目录
+      location: ${java.io.tmpdir}
+      # 文件上传后立即清理临时文件
+      resolve-lazily: false
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cooking_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.cooking.entity
+
+# 微信小程序配置
+wechat:
+  appid: wx4bb4e5cf5c71bdb3  # 替换为你的小程序AppID
+  secret: 09afea87488b51e1c58ed118328f4594  # 替换为你的小程序AppSecret
+
+# JWT配置
+jwt:
+  secret: cooking-app-secret-key-2024  # JWT密钥
+  expire-time: 604800000  # 过期时间（毫秒），默认7天
+
+# MinIO配置
+minio:
+  endpoint: http://file.xuaq.top:19000 # 注意是9000端口（数据端口），不是控制台的9001
+  accessKey: IDjlfoXFOCpf5tbTIjBm  # 你部署时设置的MINIO_ROOT_USER
+  secretKey: cWDIEDnyOShCYzU8PgNT4UsmZB2BYg98wgTVe688   # 你部署时设置的MINIO_ROOT_PASSWORD
+  bucketName: test  # 自定义桶名（会自动创建，无需手动在控制台创建）
+
+# 日志配置
+logging:
+  level:
+    com.cooking: debug
+    org.springframework: info
