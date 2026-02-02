@@ -49,10 +49,7 @@ public class AppDishController {
     public Result<DishDetailDTO> getDetail(@PathVariable Long id,
                                            @RequestParam(required = false) Long userId,
                                            HttpServletRequest request) {
-        // 增加浏览次数
-        dishService.incrementViewCount(id);
-        
-        // 记录用户浏览历史（如果已登录）
+        // 获取当前用户ID
         Long currentUserId = userId;
         if (currentUserId == null) {
             Object userIdObj = request.getAttribute("userId");
@@ -60,8 +57,20 @@ public class AppDishController {
                 currentUserId = (Long) userIdObj;
             }
         }
+        
+        // 记录用户浏览历史（如果已登录），并根据15分钟规则判断是否增加浏览次数
+        boolean shouldIncrementViewCount = false;
         if (currentUserId != null) {
-            userViewHistoryService.recordViewHistory(currentUserId, id);
+            // 记录浏览历史，返回是否应该增加浏览次数（15分钟内同一用户同一菜品只算一次）
+            shouldIncrementViewCount = userViewHistoryService.recordViewHistory(currentUserId, id);
+        } else {
+            // 未登录用户，直接增加浏览次数（无法判断15分钟规则）
+            shouldIncrementViewCount = true;
+        }
+        
+        // 只有在应该增加浏览次数时才增加
+        if (shouldIncrementViewCount) {
+            dishService.incrementViewCount(id);
         }
         
         DishDetailDTO detail = dishService.getDishDetail(id, currentUserId);
@@ -163,9 +172,6 @@ public class AppDishController {
      */
     @PostMapping("/{id}/view-history")
     public Result<String> recordViewHistory(@PathVariable Long id, HttpServletRequest request) {
-        // 增加浏览次数
-        dishService.incrementViewCount(id);
-        
         // 尝试从请求属性中获取当前用户ID
         Long userId = null;
         Object userIdObj = request.getAttribute("userId");
@@ -173,8 +179,22 @@ public class AppDishController {
             userId = (Long) userIdObj;
         }
         
+        // 记录用户浏览历史，并根据15分钟规则判断是否增加浏览次数
+        boolean shouldIncrementViewCount;
         if (userId != null) {
-            userViewHistoryService.recordViewHistory(userId, id);
+            // 记录浏览历史，返回是否应该增加浏览次数（15分钟内同一用户同一菜品只算一次）
+            shouldIncrementViewCount = userViewHistoryService.recordViewHistory(userId, id);
+        } else {
+            // 未登录用户，直接增加浏览次数（无法判断15分钟规则）
+            shouldIncrementViewCount = true;
+        }
+        
+        // 只有在应该增加浏览次数时才增加
+        if (shouldIncrementViewCount) {
+            dishService.incrementViewCount(id);
+        }
+        
+        if (userId != null) {
             return Result.success("浏览历史记录成功");
         } else {
             return Result.success("未登录用户，仅记录浏览量");

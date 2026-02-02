@@ -4,6 +4,7 @@ import lombok.Data;
 
 /**
  * 菜品列表DTO
+ * @author Administrator
  */
 @Data
 public class DishListDTO {
@@ -15,6 +16,7 @@ public class DishListDTO {
     private String description;
     private Integer difficulty;
     private Integer cookingTime;
+    private Integer viewCount;
     private Integer collectCount;
     private Boolean isFavorite;
 }

@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cooking.dto.DishListDTO;
 import com.cooking.dto.FavoriteResultDTO;
+import com.cooking.entity.Category;
 import com.cooking.entity.Dish;
 import com.cooking.entity.UserFavorite;
+import com.cooking.mapper.CategoryMapper;
 import com.cooking.mapper.DishMapper;
 import com.cooking.mapper.UserFavoriteMapper;
 import com.cooking.service.UserFavoriteService;
@@ -26,6 +28,9 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
 
     @Autowired
     private DishMapper dishMapper;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @Override
     @Transactional
@@ -139,7 +144,7 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
         LambdaQueryWrapper<UserFavorite> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserFavorite::getUserId, userId)
                .eq(UserFavorite::getDishId, dishId)
-               .eq(UserFavorite::getStatus, 1); // 只查询状态为已收藏的记录
+               .eq(UserFavorite::getStatus, 1);
         return count(wrapper) > 0;
     }
 
@@ -147,8 +152,8 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
     public List<DishListDTO> getFavoriteList(Long userId) {
         LambdaQueryWrapper<UserFavorite> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserFavorite::getUserId, userId)
-               .eq(UserFavorite::getStatus, 1) // 只查询状态为已收藏的记录
-               .orderByDesc(UserFavorite::getUpdateTime); // 按更新时间排序
+               .eq(UserFavorite::getStatus, 1)
+               .orderByDesc(UserFavorite::getUpdateTime);
         List<UserFavorite> favorites = list(wrapper);
 
         return favorites.stream().map(favorite -> {
@@ -158,6 +163,13 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
             }
             DishListDTO dto = new DishListDTO();
             BeanUtils.copyProperties(dish, dto);
+            
+            // 查询分类名称
+            Category category = categoryMapper.selectById(dish.getCategoryId());
+            if (category != null) {
+                dto.setCategoryName(category.getName());
+            }
+            
             dto.setIsFavorite(true);
             return dto;
         }).filter(Objects::nonNull).collect(Collectors.toList());

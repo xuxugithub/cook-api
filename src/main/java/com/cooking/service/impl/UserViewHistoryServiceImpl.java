@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -18,12 +19,17 @@ import java.util.List;
 @Service
 public class UserViewHistoryServiceImpl extends ServiceImpl<UserViewHistoryMapper, UserViewHistory> implements UserViewHistoryService {
 
+    // 15分钟的时间间隔（分钟）
+    private static final int VIEW_INTERVAL_MINUTES = 15;
+
     @Override
     @Transactional
-    public void recordViewHistory(Long userId, Long dishId) {
+    public boolean recordViewHistory(Long userId, Long dishId) {
         if (userId == null || dishId == null) {
-            return;
+            return false;
         }
+        
+        LocalDateTime now = LocalDateTime.now();
         
         // 查询是否已有浏览记录
         LambdaQueryWrapper<UserViewHistory> wrapper = new LambdaQueryWrapper<>();
@@ -33,21 +39,35 @@ public class UserViewHistoryServiceImpl extends ServiceImpl<UserViewHistoryMappe
         UserViewHistory existingHistory = getOne(wrapper);
         
         if (existingHistory != null) {
-            // 更新浏览次数和最后浏览时间
-            existingHistory.setViewCount(existingHistory.getViewCount() + 1);
-            existingHistory.setLastViewTime(LocalDateTime.now());
-            existingHistory.setUpdateTime(LocalDateTime.now());
-            updateById(existingHistory);
+            // 检查距离上次浏览是否超过15分钟
+            LocalDateTime lastViewTime = existingHistory.getLastViewTime();
+            long minutesBetween = ChronoUnit.MINUTES.between(lastViewTime, now);
+            
+            if (minutesBetween >= VIEW_INTERVAL_MINUTES) {
+                // 超过15分钟，算作新的浏览，更新浏览次数和最后浏览时间
+                existingHistory.setViewCount(existingHistory.getViewCount() + 1);
+                existingHistory.setLastViewTime(now);
+                existingHistory.setUpdateTime(now);
+                updateById(existingHistory);
+                return true; // 应该增加菜品浏览次数
+            } else {
+                // 15分钟内，只更新最后浏览时间，不增加浏览次数
+                existingHistory.setLastViewTime(now);
+                existingHistory.setUpdateTime(now);
+                updateById(existingHistory);
+                return false; // 不应该增加菜品浏览次数
+            }
         } else {
             // 创建新的浏览记录
             UserViewHistory newHistory = new UserViewHistory();
             newHistory.setUserId(userId);
             newHistory.setDishId(dishId);
             newHistory.setViewCount(1);
-            newHistory.setLastViewTime(LocalDateTime.now());
-            newHistory.setCreateTime(LocalDateTime.now());
-            newHistory.setUpdateTime(LocalDateTime.now());
+            newHistory.setLastViewTime(now);
+            newHistory.setCreateTime(now);
+            newHistory.setUpdateTime(now);
             save(newHistory);
+            return true; // 应该增加菜品浏览次数
         }
     }
 

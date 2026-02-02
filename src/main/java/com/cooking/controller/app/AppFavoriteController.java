@@ -26,6 +26,9 @@ public class AppFavoriteController {
     public Result<String> addFavorite(HttpServletRequest request,
                                        @RequestParam Long dishId) {
         Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error("用户未登录");
+        }
         userFavoriteService.addFavorite(userId, dishId);
         return Result.success("收藏成功");
     }
@@ -37,6 +40,9 @@ public class AppFavoriteController {
     public Result<String> removeFavorite(HttpServletRequest request,
                                           @RequestParam Long dishId) {
         Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error("用户未登录");
+        }
         userFavoriteService.removeFavorite(userId, dishId);
         return Result.success("取消收藏成功");
     }
@@ -47,6 +53,9 @@ public class AppFavoriteController {
     @GetMapping("/list")
     public Result<List<DishListDTO>> getFavoriteList(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error("用户未登录");
+        }
         List<DishListDTO> list = userFavoriteService.getFavoriteList(userId);
         return Result.success(list);
     }
@@ -58,6 +67,9 @@ public class AppFavoriteController {
     public Result<Boolean> isFavorite(HttpServletRequest request,
                                       @RequestParam Long dishId) {
         Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.success(false);
+        }
         Boolean isFavorite = userFavoriteService.isFavorite(userId, dishId);
         return Result.success(isFavorite);
     }

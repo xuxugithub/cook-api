@@ -11,9 +11,12 @@ import java.util.List;
 public interface UserViewHistoryService extends IService<UserViewHistory> {
     
     /**
-     * 记录用户浏览历史
+     * 记录用户浏览历史（15分钟内同一用户同一菜品只算一次浏览）
+     * @param userId 用户ID
+     * @param dishId 菜品ID
+     * @return 是否应该增加菜品浏览次数（true-应该增加，false-15分钟内已浏览过）
      */
-    void recordViewHistory(Long userId, Long dishId);
+    boolean recordViewHistory(Long userId, Long dishId);
     
     /**
      * 获取用户浏览最多的菜品ID列表
