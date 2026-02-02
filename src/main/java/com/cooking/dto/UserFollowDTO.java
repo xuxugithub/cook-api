@@ -15,12 +15,12 @@ public class UserFollowDTO {
     /**
      * 昵称
      */
-    private String nickname;
+    private String nickName;
 
     /**
      * 头像
      */
-    private String avatar;
+    private String avatarUrl;
 
     /**
      * 是否已关注（当前用户是否关注了该用户）

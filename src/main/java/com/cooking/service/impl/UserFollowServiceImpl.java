@@ -89,8 +89,8 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
             }
             UserFollowDTO dto = new UserFollowDTO();
             dto.setUserId(user.getId());
-            dto.setNickname(user.getNickname());
-            dto.setAvatar(user.getAvatar());
+            dto.setNickName(user.getNickName());
+            dto.setAvatarUrl(user.getAvatarUrl());
             // 判断当前用户是否关注了该用户
             dto.setIsFollowed(isFollowed(currentUserId, user.getId()));
             return dto;
@@ -112,8 +112,8 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
             }
             UserFollowDTO dto = new UserFollowDTO();
             dto.setUserId(user.getId());
-            dto.setNickname(user.getNickname());
-            dto.setAvatar(user.getAvatar());
+            dto.setNickName(user.getNickName());
+            dto.setAvatarUrl(user.getAvatarUrl());
             // 判断当前用户是否关注了该用户
             dto.setIsFollowed(isFollowed(currentUserId, user.getId()));
             return dto;

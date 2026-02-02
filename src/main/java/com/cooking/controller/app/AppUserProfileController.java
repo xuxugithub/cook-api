@@ -50,8 +50,8 @@ public class AppUserProfileController {
         
         Map<String, Object> result = new HashMap<>();
         result.put("userId", user.getId());
-        result.put("nickname", user.getNickname());
-        result.put("avatar", user.getAvatar());
+        result.put("nickName", user.getNickName());
+        result.put("avatar", user.getAvatarUrl());
         
         // 判断当前用户是否关注了该用户
         if (currentUserId != null) {

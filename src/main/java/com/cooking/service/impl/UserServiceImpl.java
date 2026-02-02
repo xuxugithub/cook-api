@@ -31,8 +31,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 新用户，自动注册
             user = new User();
             user.setOpenid(openid);
-            user.setNickname(nickname);
-            user.setAvatar(avatar);
+            user.setNickName(nickname);
+            user.setAvatarUrl(avatar);
             user.setStatus(1);
             user.setFansCount(0);
             user.setFollowCount(0);
@@ -42,10 +42,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             // 老用户，更新信息
             if (nickname != null && !nickname.isEmpty()) {
-                user.setNickname(nickname);
+                user.setNickName(nickname);
             }
             if (avatar != null && !avatar.isEmpty()) {
-                user.setAvatar(avatar);
+                user.setAvatarUrl(avatar);
             }
             user.setUpdateTime(LocalDateTime.now());
             updateById(user);
@@ -59,9 +59,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = this.selectByOpenid(openid);
         if (user != null) {
             // 若用户信息有变化，更新（避免重复更新，可增加字段对比）
-            if (!nickName.equals(user.getNickname()) || !avatarUrl.equals(user.getAvatar())) {
-                user.setNickname(nickName);
-                user.setAvatar(avatarUrl);
+            boolean needUpdate = false;
+            
+            if (nickName != null && !nickName.equals(user.getNickName())) {
+                user.setNickName(nickName);
+                needUpdate = true;
+            }
+            
+            // 只有当新头像不为空时才更新头像
+            if (avatarUrl != null && !avatarUrl.trim().isEmpty() && !avatarUrl.equals(user.getAvatarUrl())) {
+                user.setAvatarUrl(avatarUrl);
+                needUpdate = true;
+            }
+            
+            if (needUpdate) {
                 this.updateById(user);
             }
             return user;
@@ -69,8 +80,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 未找到则创建新用户
         User newUser = new User();
         newUser.setOpenid(openid);
-        newUser.setNickname(nickName);
-        newUser.setAvatar(avatarUrl);
+        newUser.setNickName(nickName);
+        newUser.setAvatarUrl(avatarUrl != null && !avatarUrl.trim().isEmpty() ? avatarUrl : "");
 
         this.save(newUser);
         return newUser;
