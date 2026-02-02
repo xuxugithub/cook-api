@@ -1,9 +1,11 @@
 package com.cooking.controller.app;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cooking.common.Result;
 import com.cooking.entity.User;
 import com.cooking.service.UserService;
 import com.cooking.util.JwtUtil;
+import com.cooking.util.WeChatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,9 @@ public class AppUserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private WeChatUtil weChatUtil;
+
     /**
      * 微信小程序登录
      */
@@ -34,8 +39,21 @@ public class AppUserController {
                 return Result.error("微信登录凭证不能为空");
             }
             
-            // 模拟通过code获取openid（实际项目中需要调用微信API）
-            String openid = "wx_" + code.hashCode();
+            // 调用微信API获取openid和session_key
+            JSONObject wechatResponse = weChatUtil.getOpenidByCode(code);
+            
+            // 检查微信API返回结果
+            if (wechatResponse.containsKey("errcode")) {
+                Integer errcode = wechatResponse.getInteger("errcode");
+                String errmsg = wechatResponse.getString("errmsg");
+                return Result.error("微信登录失败：" + errmsg + " (错误码：" + errcode + ")");
+            }
+            
+            String openid = wechatResponse.getString("openid");
+
+            if (openid == null || openid.trim().isEmpty()) {
+                return Result.error("获取微信openid失败");
+            }
             
             String nickName = userInfoMap != null ? (String) userInfoMap.get("nickName") : "微信用户";
             String avatarUrl = userInfoMap != null ? (String) userInfoMap.get("avatarUrl") : "";
@@ -47,6 +65,7 @@ public class AppUserController {
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", user.getId());
             claims.put("username", user.getNickname());
+            claims.put("openid", openid);
             claims.put("type", "user");
             
             // 生成JWT token
@@ -55,6 +74,7 @@ public class AppUserController {
             Map<String, Object> result = new HashMap<>();
             result.put("token", token);
             result.put("userInfo", user);
+            result.put("openid", openid);
             
             return Result.success(result);
         } catch (Exception e) {
@@ -83,6 +103,7 @@ public class AppUserController {
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", user.getId());
             claims.put("username", user.getNickname());
+            claims.put("openid", openid);
             claims.put("type", "user");
             
             // 生成JWT token

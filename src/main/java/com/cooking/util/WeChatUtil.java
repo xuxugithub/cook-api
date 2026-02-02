@@ -1,7 +1,7 @@
 package com.cooking.util;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +37,7 @@ public class WeChatUtil {
     public JSONObject getOpenidByCode(String code) {
         String url = WECHAT_LOGIN_URL + "?appid=" + appid + "&secret=" + secret
                 + "&js_code=" + code + "&grant_type=authorization_code";
+
 
         try {
             URL requestUrl = new URL(url);

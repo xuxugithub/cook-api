@@ -56,7 +56,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User findOrCreateUser(String openid, String nickName, String avatarUrl) {
-        return loginOrRegister(openid, nickName, avatarUrl);
+        User user = this.selectByOpenid(openid);
+        if (user != null) {
+            // 若用户信息有变化，更新（避免重复更新，可增加字段对比）
+            if (!nickName.equals(user.getNickname()) || !avatarUrl.equals(user.getAvatar())) {
+                user.setNickname(nickName);
+                user.setAvatar(avatarUrl);
+                this.updateById(user);
+            }
+            return user;
+        }
+        // 未找到则创建新用户
+        User newUser = new User();
+        newUser.setOpenid(openid);
+        newUser.setNickname(nickName);
+        newUser.setAvatar(avatarUrl);
+
+        this.save(newUser);
+        return newUser;
+    }
+
+    private User selectByOpenid(String openid) {
+        return this.lambdaQuery().eq(User::getOpenid, openid).one();
     }
 
     @Override
