@@ -39,7 +39,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/admin/**")  // 拦截管理员接口
                 .excludePathPatterns(
                         "/api/admin/login",           // 排除管理员登录接口
-                        "/api/admin/data-init/**"    // 排除数据初始化接口（开发环境使用）
+                        "/api/admin/data-init/**"   , // 排除数据初始化接口（开发环境使用）
+                        "/api/admin/file/preview/**"
 
                 );
     }
