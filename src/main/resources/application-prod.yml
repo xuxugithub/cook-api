@@ -65,3 +65,44 @@ logging:
     name: logs/cooking-app.log
     max-size: 10MB
     max-history: 30
+
+# LLM大模型配置
+llm:
+  base-url: http://106.55.137.118/api/completion  # Nginx转发地址
+  api-key: key-1d91f1cb4de3e1797907393c45c19278ac7af559  # 你的api-key
+  timeout:
+    connect: 10000  # 连接超时10秒
+    read: 60000     # 流式读取超时60秒
+  # 生成参数
+  stream: true      # 默认流式响应
+  max-tokens: 512
+  temperature: 0.6
+  top-p: 0.85
+  repeat-penalty: 1.2
+  stop: ["### User: "]  # 停止词
+
+
+
+# 熔断/重试配置
+resilience4j:
+  circuitbreaker:
+    instances:
+      llmService:
+        failureRateThreshold: 50        # 失败率50%触发熔断
+        slidingWindowSize: 10           # 统计窗口10次请求
+        minimumNumberOfCalls: 5         # 最少5次请求才触发
+        waitDurationInOpenState: 60s    # 熔断后60秒尝试恢复
+        permittedNumberOfCallsInHalfOpenState: 3  # 半开状态允许3次请求
+        recordExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+          - java.lang.RuntimeException
+  retry:
+    instances:
+      llmService:
+        maxAttempts: 2                  # 最多重试1次（总计2次）
+        waitDuration: 1000ms           # 重试间隔1秒
+        retryExceptions:
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+

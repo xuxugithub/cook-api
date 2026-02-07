@@ -34,6 +34,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/app/user/login"                        // 用户登录接口（简化版）
                 );
         
+        // 对话系统认证拦截器（使用同一个JWT拦截器）
+        registry.addInterceptor(jwtAuthenticationInterceptor)
+                .addPathPatterns("/api/chat/**", "/api/conversation/**")  // 拦截对话接口
+                .excludePathPatterns(
+                        "/api/auth/**"  // 排除认证接口（登录、注册）
+                );
+        
         // 管理员认证拦截器
         registry.addInterceptor(adminAuthenticationInterceptor)
                 .addPathPatterns("/api/admin/**")  // 拦截管理员接口

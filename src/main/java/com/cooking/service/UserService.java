@@ -44,4 +44,14 @@ public interface UserService extends IService<User> {
      * 更新用户关注数
      */
     void updateFollowCount(Long userId, int increment);
+    
+    /**
+     * 根据手机号查找用户
+     */
+    User findByPhone(String phone);
+    
+    /**
+     * 根据邮箱查找用户
+     */
+    User findByEmail(String email);
 }

@@ -15,6 +15,7 @@ import java.util.Map;
 
 /**
  * 小程序用户Controller
+ * @author Administrator
  */
 @RestController
 @RequestMapping("/api/app/user")

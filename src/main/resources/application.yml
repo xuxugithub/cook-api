@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod  # 生产环境
+    active: dev  # 测试环境
 
   application:
     name: cooking-app

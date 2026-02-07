@@ -40,6 +40,16 @@ public class User implements Serializable {
     private String phone;
 
     /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 密码（加密后）
+     */
+    private String password;
+
+    /**
      * 性别：0-未知，1-男，2-女
      */
     private Integer gender;
